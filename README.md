@@ -4,7 +4,9 @@
 
 # Doujin Comic Translator
 
-**A free, local app that finds, reads, translates, erases and re-letters the text in manga, manhwa and comics.**
+**A free, local app that finds, reads, translates, erases and re-letters the text in manga, manhwa, webtoons and comics.**
+
+*Manga translator · manhwa & webtoon translator · comic translator: text detection, OCR, AI translation, text removal (inpainting) and typesetting in one app, with free web translators, AI APIs (OpenRouter, Gemini, DeepL…) and local models.*
 
 ![Python](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-local%20web%20app-009688?logo=fastapi&logoColor=white)
@@ -44,6 +46,7 @@ flowchart LR
   - *Local models:* Opus-MT, NLLB, Qwen2.5 / Qwen3, Qwen2.5-VL.
 - **Hand editing:** drag and resize boxes, fix text, change font, size and colour per box.
 - **Safety net:** AI refusals or explanations are caught and never printed onto your page.
+- **Works offline-capable:** local OCR, inpainting and translation models (Opus-MT, NLLB, Qwen via Ollama / LM Studio), so pages never have to leave your PC.
 - **Standalone Windows app:** build a `DoujinTranslator.exe` with one script.
 
 ## 📦 Quick start (Windows)
@@ -122,5 +125,7 @@ doujin.spec      PyInstaller recipe     build_exe.bat   one-click build
 Inspired by and learned from [comic-translate](https://github.com/ogkalu2/comic-translate) (its erasing and font-fitting approach), and built on [LaMa](https://github.com/advimman/lama), [manga-ocr](https://github.com/kha-white/manga-ocr), [EasyOCR](https://github.com/JaidedAI/EasyOCR), [Ultralytics](https://github.com/ultralytics/ultralytics), [FastAPI](https://fastapi.tiangolo.com/) and many free translation services. Thank you to all of them.
 
 ---
+
+<sub>**Keywords:** manga translator, manhwa translator, webtoon translator, comic translator, doujin translator, manga OCR, manga-ocr, text detection, text removal, image translation, inpainting, LaMa, YOLO, EasyOCR, typesetting, cbz, OpenRouter, Gemini, DeepL, Ollama, FastAPI, Windows, local AI, vibe coding.</sub>
 
 <div align="center">Made with curiosity and a lot of chatting with an AI 💬</div>
