@@ -1,0 +1,260 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Doujin · Comic Translator</title><link rel="icon" href="/favicon.ico">
+<style>
+:root{--bg:#0b101d;--panel:#121a2d;--panel2:#18223a;--line:#243050;--text:#e8ecf6;--mute:#8a95b2;--rose:#ff5c8a;--rose2:#ff8fb0;--blue:#4c6ef5;--green:#37b24d;--amber:#f59f00}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;font:14px/1.4 system-ui,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+input,select,button,textarea{font:inherit;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--rose);outline-offset:-1px}
+button{cursor:pointer;background:var(--panel2)}button:hover:not(:disabled){border-color:var(--rose2)}button:disabled{opacity:.35;cursor:default}
+input[type=checkbox]{accent-color:var(--rose);padding:0}input[type=color]{padding:1px 3px;height:30px;width:44px}
+textarea{width:100%;resize:vertical}small{display:block;color:var(--mute);margin:6px 0;font-size:12px}
+a{color:var(--rose2)}hr{border:0;border-top:1px solid var(--line);margin:12px 0}
+/* header */
+.top{display:flex;align-items:center;gap:18px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}.brand img{height:50px;width:auto;border-radius:10px;background:#fff;padding:2px}
+.brand b{font-size:16px;letter-spacing:.04em;display:block;line-height:1.1}.brand span{font-size:11px;color:var(--mute)}
+.steps{display:flex;gap:4px;flex-wrap:wrap}
+.st{display:flex;flex-direction:column;align-items:center;min-width:76px;padding:4px 10px;line-height:1.15;background:transparent;border-color:transparent}
+.st i{font-style:normal;font-size:15px;color:var(--rose2);letter-spacing:.1em}.st span{font-size:11px;color:var(--mute)}
+.st:hover:not(:disabled){background:var(--panel2)}.st.on{background:var(--panel2);border-color:var(--rose)}
+.st.act{background:var(--rose);border-color:var(--rose)}.st.act i,.st.act span{color:#fff}
+.runbox{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+button.go{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:600}button.stop{background:#c92a2a;border-color:#c92a2a}
+progress{width:130px;height:8px;accent-color:var(--rose)}#msg{font-weight:500;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* body */
+.main{flex:1;display:flex;min-height:0}
+.rail{width:62px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:4px;padding:8px 6px}
+.rail button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;font-size:10px;color:var(--mute);background:transparent;border-color:transparent}
+.rail button b{font-size:18px;font-weight:400;color:var(--text)}.rail button.on{background:var(--panel2);border-color:var(--rose);color:var(--text)}
+#drawer{width:0;overflow:hidden;background:var(--panel);border-right:1px solid var(--line);transition:width .15s}
+#drawer.open{width:340px}#drawer>div{width:340px;padding:14px;overflow:auto;height:100%}
+#drawer h3{margin:0 0 10px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--rose2)}
+.row{display:flex;align-items:center;gap:8px;margin:8px 0;flex-wrap:wrap}.row>label:first-child{width:92px;color:var(--mute)}
+.row>label:has(input[type=checkbox]){width:auto!important;color:var(--text)}
+.row select,.row input[type=text],.row input:not([type]){flex:1;min-width:0}
+#file{width:100%}
+#ed{flex:1;display:flex;min-width:0;min-height:0}#left{flex:1;overflow:auto;padding:12px;background:#080c16}
+#empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--mute);text-align:center}
+#empty img{height:130px;border-radius:14px;background:#fff;padding:4px}
+#wrap{position:relative;max-width:900px;margin:auto;user-select:none;box-shadow:0 8px 30px #0008}#img{width:100%;display:block}#layer{position:absolute;inset:0}
+.tools{text-align:center;margin-bottom:10px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+.box{position:absolute;border:2px solid var(--rose);background:rgba(255,92,138,.22);font-size:11px;overflow:hidden;color:#fff;cursor:pointer}
+.box span{display:block;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.box.sel{overflow:visible;cursor:move;touch-action:none;z-index:2}
+.hd{position:absolute;width:11px;height:11px;background:#fff;border:2px solid var(--rose);border-radius:3px;touch-action:none;z-index:3}
+.hd.nw{left:-6px;top:-6px;cursor:nwse-resize}.hd.n{left:calc(50% - 6px);top:-6px;cursor:ns-resize}.hd.ne{right:-6px;top:-6px;cursor:nesw-resize}.hd.e{right:-6px;top:calc(50% - 6px);cursor:ew-resize}
+.hd.se{right:-6px;bottom:-6px;cursor:nwse-resize}.hd.s{left:calc(50% - 6px);bottom:-6px;cursor:ns-resize}.hd.sw{left:-6px;bottom:-6px;cursor:nesw-resize}.hd.w{left:-6px;top:calc(50% - 6px);cursor:ew-resize}
+.prov{border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:8px 10px;background:var(--panel2)}.prov summary{cursor:pointer;font-weight:600}
+.prov .row>label:first-child{width:72px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#555;margin-right:8px}.dot.ok{background:var(--green)}
+.res{font-size:12px;margin-top:6px;word-break:break-word}.res.ok{color:#69db7c}.res.bad{color:#ff8787}
+.box.pend{border-style:dashed;background:rgba(255,212,59,.18);color:#ffd43b}.box.sel{border-color:#ffd43b;background:rgba(255,212,59,.2)}.box.empty{border-color:#fa5252;background:rgba(250,82,82,.2)}
+#right{width:320px;overflow:auto;padding:14px;background:var(--panel);border-left:1px solid var(--line)}
+#right h3{margin:0 0 10px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--rose2)}
+#right p{margin:8px 0}#right button{margin:2px 0}
+/* filmstrip */
+#strip{padding:6px 12px;background:var(--panel);border-top:1px solid var(--line);overflow-x:auto;white-space:nowrap}
+.chip{position:relative;display:inline-block;width:58px;height:84px;padding:0;margin:2px;border-radius:6px;overflow:hidden;border:2px solid var(--line);vertical-align:top;background:var(--panel2)}
+.chip img{width:100%;height:100%;object-fit:cover;display:block}.chip b{position:absolute;left:0;right:0;bottom:0;font-size:11px;background:#000b;color:#fff;padding:1px 0}
+.chip[data-s="1"]{border-color:#e67700}.chip[data-s="2"]{border-color:#3b82f6}.chip[data-s="3"]{border-color:#37b24d}.chip[data-s="4"]{border-color:#c026d3}
+.chip.cur{outline:2px solid #fff;outline-offset:1px}.chip.act{box-shadow:0 0 0 2px #ffd43b}
+#log{font-size:11px;max-height:200px;overflow:auto;background:#080c16;padding:8px;white-space:pre-wrap;border-radius:8px;margin:6px 0}
+details summary{cursor:pointer;color:var(--mute)}label{white-space:nowrap}
+</style></head><body>
+<header class="top">
+ <div class="brand"><img id="logo" src="/logo" alt="Doujin"><div><b>DOUJIN</b><span>同人 · Comic Translator</span></div></div>
+ <nav class="steps">
+  <button id="bDet" class="st" disabled><i>解析</i><span>2 Analyze</span></button>
+  <button id="bOcr" class="st" disabled><i>読取</i><span>3 OCR</span></button>
+  <button id="bTr" class="st" disabled><i>翻訳</i><span>4 Translate</span></button>
+  <button id="bEdit" class="st on" disabled><i>編集</i><span>5 Edit</span></button>
+  <button id="bInp" class="st" disabled><i>修復</i><span>6 Inpaint</span></button>
+  <button id="bTyp" class="st" disabled title="Redraw text on the already cleaned pages (fast)"><i>植字</i><span>6b Re-typeset</span></button>
+  <button id="bExp" class="st" disabled><i>出力</i><span>7 Export</span></button>
+ </nav>
+ <div class="runbox"><button id="bAll" class="go" disabled title="Analyze → OCR → Translate">▶ Run 2-4</button><button id="bStop" class="stop" disabled>■ Stop</button>
+  <progress id="bar" value="0" max="1"></progress><b id="msg"></b></div>
+</header>
+<div class="main">
+ <nav class="rail">
+  <button data-p="import" title="Import"><b>⤓</b>Import</button>
+  <button data-p="config" title="Config"><b>⚙</b>Config</button>
+  <button data-p="style" title="Text style"><b>Aa</b>Style</button>
+  <button data-p="api" title="API keys"><b>⌘</b>API</button>
+  <button data-p="export" title="Export"><b>⤒</b>Export</button>
+  <button id="bQuit" title="Quit the app" style="margin-top:auto"><b>⏻</b>Quit</button>
+ </nav>
+ <aside id="drawer" data-k="">
+  <div class="pn" id="pImport" hidden><h3>Import</h3>
+   <div class="row"><input type="file" id="file" accept=".cbz,.zip,.cbr,.rar,.7z,.pdf,.jpg,.jpeg,.png,.webp"></div>
+   <div class="row"><input id="url" placeholder="or chapter URL"></div>
+   <div class="row"><button id="bLoad" class="go" style="width:100%">1 Load</button></div>
+   <small>cbz, zip, cbr, rar, 7z, pdf, images, or a chapter URL.</small></div>
+  <div class="pn" id="pConfig" hidden><h3>Config</h3>
+   <div class="row"><label>From</label><select id="src"><option value="ja">Japanese</option><option value="ko">Korean</option><option value="zh">Chinese</option><option value="es">Spanish</option><option value="en">English</option></select></div>
+   <div class="row"><label>To</label><select id="tgt"><option value="en">English</option><option value="es">Spanish</option><option value="fr">French</option><option value="de">German</option><option value="pt">Portuguese</option><option value="it">Italian</option><option value="id">Indonesian</option><option value="vi">Vietnamese</option><option value="tr">Turkish</option><option value="ru">Russian</option></select></div>
+   <div class="row"><label>Engine</label><select id="eng" title="Translation engine"><optgroup id="apiEng" label="AI / API (your keys: see the API panel)"></optgroup><optgroup label="Free online (no key)"><option value="online">Online auto (Google → Bing → MyMemory → …)</option><option value="google">Google only</option><option value="bing">Bing (Microsoft)</option><option value="papago">Papago (good for Korean)</option><option value="mirai">Mirai (good for Japanese)</option><option value="youdao">Youdao</option><option value="mymemory">MyMemory</option><option value="reverso">Reverso</option><option value="itranslate">iTranslate</option><option value="deepl">DeepL (web, no key; often blocked)</option><option value="yandex">Yandex</option><option value="sogou">Sogou</option><option value="alibaba">Alibaba</option><option value="caiyun">Caiyun</option><option value="lingvanex">Lingvanex</option></optgroup><optgroup label="Local"><option value="opus">Opus-MT (fast, to English)</option><option value="nllb">NLLB</option><option value="qwen">Qwen2.5-3B (light)</option><option value="qwen3-8b">Qwen3-8B (4-bit, ~6 GB VRAM)</option><option value="qwen3-14b">Qwen3-14B (4-bit, ~10 GB VRAM)</option><option value="qwen3-32b">Qwen3-32B (4-bit, ~20 GB VRAM)</option><option value="qwen-vl">Qwen2.5-VL 7B (sees the bubble)</option></optgroup></select></div>
+   <small>AI / API engines (OpenRouter, Gemini, Groq, DeepL, ChatGPT, Claude, Kimi, Ollama...) show up here after you save a key in the API panel. If one fails, the free web translators take over.</small>
+   <hr>
+   <div class="row"><label>Run on</label><select id="scope"><option value="all">All pages</option><option value="one">Current page only</option></select></div>
+   <div class="row"><label><input type="checkbox" id="force"> Redo existing (re-read / re-translate)</label></div>
+   <div class="row"><label title="Slower. Looks at the cleaned page again and erases text the first detector missed (vertical lines, small sound effects). Can clip artwork."><input type="checkbox" id="sweep"> Extra cleanup pass (find leftover text)</label></div>
+   <div class="row"><label><input type="checkbox" id="thenExp"> After Run 2-4, also Inpaint + Export</label></div></div>
+  <div class="pn" id="pStyle" hidden><h3>Text style · all boxes</h3>
+   <div class="row"><label>Font</label><select id="gFont"></select></div>
+   <div class="row"><label>Colour</label><select id="gColor"><option value="auto">Auto (black / white on dark)</option><option value="ink">Same as original</option><option value="custom">Custom</option></select><input type="color" id="gCustom" value="#000000"></div>
+   <div class="row"><label>Case</label><select id="gCase"><option value="upper">UPPERCASE</option><option value="as">As translated</option><option value="lower">lowercase</option></select></div>
+   <div class="row"><label>Line spacing</label><input id="gSp" type="number" step="0.05" min="0.8" max="2" value="1.1" style="max-width:80px"></div>
+   <div class="row"><label>Max / Min size</label><input id="gMax" type="number" min="8" max="120" value="48" style="max-width:70px"><input id="gMin" type="number" min="6" max="60" value="10" style="max-width:70px"></div>
+   <div class="row"><label>Outline</label><input id="gOut" type="number" min="-1" max="10" value="-1" style="max-width:70px"></div><small>-1 = auto (outline only for text on artwork)</small>
+   <div class="row"><label><input type="checkbox" id="gFit" checked> Fill the whole bubble</label></div>
+   <div class="row"><label><input type="checkbox" id="gHy" checked> Hyphenate long words</label></div>
+   <div class="row"><button id="bReset">Reset every box to this style</button></div>
+   <small>After changing the style press <b>Re-typeset</b> (fast, no re-inpainting).</small></div>
+  <div class="pn" id="pApi" hidden><h3>API keys</h3>
+   <small>Keys are stored only in <b>config.json</b> next to app.py on your PC and sent only to that provider. Free tiers change often: press <b>Test</b> after saving.</small>
+   <div id="provs"></div></div>
+  <div class="pn" id="pExport" hidden><h3>Export</h3>
+   <div class="row"><label>Format</label><select id="fmt"><option>cbz</option><option>zip</option><option>pdf</option><option>cbr</option><option>7z</option></select></div>
+   <small>Press <b>7 Export</b> in the top bar. When it finishes, the download link shows here.</small>
+   <div class="row"><a id="dl" hidden href="#">⬇ Download result</a></div></div>
+ </aside>
+ <div id="empty"><img src="/logo" alt=""><div>Open <b>Import</b> on the left and load a chapter to begin.</div></div>
+ <section id="ed" hidden><div id="left"><div class="tools"><button id="prev">◀</button> <span id="pn"></span> <button id="next">▶</button>
+  <button id="add">+ Add box</button> <button id="tog" hidden>Showing: Original</button> <label><input type="checkbox" id="follow" checked> Follow live</label></div>
+  <div id="wrap"><img id="img" draggable="false"><div id="layer"></div></div></div></section>
+ <aside id="right"><h3>Box editor</h3><div id="sel"></div>
+  <hr><small>Page border: grey = loaded, orange = analyzed, blue = read, green = translated, purple ✓ = inpainted. Red box = no translation yet (would only be erased).</small>
+  <details><summary>Log</summary><pre id="log"></pre></details></aside>
+</div>
+<div id="strip" hidden></div>
+<script>
+const $=id=>document.getElementById(id),esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let fonts={folder:[],system:[]},P=[],jid=null,pg=0,sel=null,adding=false,st=null,showOut=false,editing=true,status='idle',stage='',timer=null,booted=false,busy=false;
+
+const SK='cts_style',sv=()=>({font:$('gFont').value,color:$('gColor').value,custom:$('gCustom').value,case:$('gCase').value==='as'?'as':$('gCase').value,spacing:+$('gSp').value||1.1,max:+$('gMax').value||48,min:+$('gMin').value||10,outline:+$('gOut').value,hyphen:$('gHy').checked,fit:$('gFit').checked});
+function saveStyle(){try{localStorage.setItem(SK,JSON.stringify({...sv(),case:$('gCase').value}))}catch(e){}}
+function loadStyle(){try{const s=JSON.parse(localStorage.getItem(SK)||'null');if(!s)return;$('gFont').value=s.font||'';$('gColor').value=s.color;$('gCustom').value=s.custom;$('gCase').value=s.case;$('gSp').value=s.spacing;$('gMax').value=s.max;$('gMin').value=s.min;$('gOut').value=s.outline;$('gHy').checked=s.hyphen;$('gFit').checked=s.fit}catch(e){}}
+const fontOpts=(sel,first)=>`<option value="">${first}</option>`+(fonts.folder.length?`<optgroup label="Your fonts folder">${fonts.folder.map(f=>`<option value="${esc(f)}" ${f==sel?'selected':''}>${esc(f)}</option>`).join('')}</optgroup>`:'')
+ +(fonts.system.length?`<optgroup label="System fonts">${fonts.system.map(f=>`<option value="${esc(f)}" ${f==sel?'selected':''}>${esc(f.slice(4))}</option>`).join('')}</optgroup>`:'');
+['gFont','gColor','gCustom','gCase','gSp','gMax','gMin','gOut','gHy','gFit'].forEach(i=>$(i).onchange=saveStyle);
+$('bReset').onclick=()=>{P.forEach(p=>p.blocks.forEach(b=>{b.font='';b.size=0;b.color=''}));sel=null;panel();$('msg').textContent='All boxes now follow the global style.'};
+$('bTyp').onclick=()=>{if(!P.some(p=>p.blocks.length)){$('msg').textContent='Nothing to typeset.';return}showOut=true;go('typeset')};
+const run=()=>status==='running',lvl=p=>p.inp?4:p.st;
+const STEP={detect:'bDet',ocr:'bOcr',translate:'bTr',inpaint:'bInp',typeset:'bTyp',export:'bExp'};
+function setBtns(){Object.entries(STEP).forEach(([s,i])=>$(i).classList.toggle('act',run()&&stage===s));const has=P.length>0,r=run()||busy;['bDet','bOcr','bTr','bInp','bTyp','bExp','bAll'].forEach(i=>$(i).disabled=!has||r);$('bEdit').disabled=!has;$('bLoad').disabled=r;$('bStop').disabled=!run();
+ $('add').disabled=!editing||r;$('bEdit').classList.toggle('on',editing)}
+async function poll(){clearTimeout(timer);const r=await(await fetch('/api/job/'+jid)).json();status=r.status;stage=r.stage;
+ $('msg').textContent=r.msg;$('log').textContent=r.log.join('\n');$('log').scrollTop=1e9;$('bar').max=r.total||1;$('bar').value=r.done;
+ if(r.pages){r.pages.forEach((p,i)=>{if(!P[i]||p.run||P[i].run)P[i]=p;else{P[i].st=p.st;P[i].inp=p.inp;P[i].rev=p.rev}})}
+ if(P.length&&!booted){booted=true;fonts=await(await fetch('/api/fonts')).json();$('gFont').innerHTML=fontOpts('', 'Default (first font in fonts/, else Comic Sans / Arial Bold)');loadStyle();$('ed').hidden=false;$('empty').hidden=true;$('strip').hidden=false;draw(0)}
+ if(booted){if(run()&&$('follow').checked&&r.cur!=null&&r.cur!==pg){if(stage==='inpaint')showOut=true;draw(r.cur)}
+  chips();layer();$('tog').hidden=!P[pg]?.inp;if(!run())panel();$('tog').textContent='Showing: '+(showOut?'Result':'Original');img()}
+ if(r.out){$('dl').href='/api/download/'+jid;$('dl').hidden=false}
+ setBtns();if(run())timer=setTimeout(poll,700)}
+$('bLoad').onclick=async()=>{const f=new FormData();if($('file').files[0])f.append('file',$('file').files[0]);f.append('url',$('url').value);
+ P=[];booted=false;showOut=false;$('ed').hidden=true;$('empty').hidden=false;$('strip').hidden=true;$('dl').hidden=true;closeP();
+ const r=await(await fetch('/api/load',{method:'POST',body:f})).json();if(r.error){$('msg').textContent=r.error;return}jid=r.id;status='running';setBtns();poll()};
+const scope=()=>$('scope').value==='one'?[pg]:null,idxs=()=>scope()||P.map((_,i)=>i);
+async function go(name,extra={}){const body={pages:P.map(p=>({blocks:p.blocks})),scope:scope(),src:$('src').value,tgt:$('tgt').value,engine:$('eng').value,force:$('force').checked,sweep:$('sweep').checked,format:$('fmt').value,style:sv(),...extra};
+ $('dl').hidden=true;const r=await(await fetch(`/api/stage/${jid}/${name}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
+ if(r.error){$('msg').textContent=r.error;return}status='running';$('follow').checked=true;setBtns();poll()}
+const blocks=()=>idxs().flatMap(i=>P[i].blocks);
+$('bDet').onclick=()=>{if(blocks().length&&!confirm('Analyze again replaces the existing boxes (and your edits) on these pages. Continue?'))return;go('detect')};
+$('bOcr').onclick=()=>{if(!blocks().length){$('msg').textContent='No text boxes yet: run 2 Analyze first (or add boxes by hand).';return}go('ocr')};
+$('bTr').onclick=()=>{if(!blocks().some(b=>b.src)){$('msg').textContent='No source text yet: run 3 OCR first.';return}go('translate')};
+$('bAll').onclick=()=>{if(blocks().length&&!confirm('This re-runs Analyze and replaces existing boxes. Continue?'))return;go('all',{then_export:$('thenExp').checked})};
+$('bInp').onclick=()=>{const b=blocks();if(!b.length){$('msg').textContent='Nothing to inpaint: no text boxes.';return}
+ const e=b.filter(x=>!(x.text||'').trim()).length;if(e&&!confirm(e+' boxes have no translation: their text will be erased and nothing drawn. Continue?'))return;showOut=true;go('inpaint')};
+$('bExp').onclick=()=>{if(!P.some(p=>p.inp)&&!confirm('No page is inpainted yet: the export will contain the ORIGINAL pages. Continue?'))return;go('export')};
+$('bStop').onclick=()=>fetch('/api/stop/'+jid,{method:'POST'});
+$('bEdit').onclick=()=>{editing=!editing;sel=null;layer();panel();setBtns()};
+function img(){const u=showOut&&P[pg]?.inp?`/api/out/${jid}/${pg}?t=${P[pg].rev}`:`/api/page/${jid}/${pg}`;if($('img').dataset.u!==u){$('img').dataset.u=u;$('img').src=u}}
+function draw(i){pg=i;sel=null;img();$('pn').textContent=`${i+1}/${P.length}`;layer();panel();chips()}
+let chipSig='';
+function chips(){const sig=jid+':'+pg+':'+P.map(p=>lvl(p)+(p.inp?1:0)+(p.run==='active'?1:0)).join('');if(sig===chipSig)return;chipSig=sig;
+ $('strip').innerHTML=P.map((p,i)=>`<button class="chip${i===pg?' cur':''}${p.run==='active'?' act':''}" data-s="${lvl(p)}" onclick="$('follow').checked=false;draw(${i})"><img loading="lazy" alt="" src="/api/thumb/${jid}/${i}"><b>${i+1}${p.inp?' ✓':''}</b></button>`).join('');
+ const c=$('strip').querySelector('.cur');if(c&&c.scrollIntoView)c.scrollIntoView({inline:'center',block:'nearest'})}
+$('prev').onclick=()=>{$('follow').checked=false;pg>0&&draw(pg-1)};$('next').onclick=()=>{$('follow').checked=false;pg<P.length-1&&draw(pg+1)};
+$('tog').onclick=()=>{showOut=!showOut;img();$('tog').textContent='Showing: '+(showOut?'Result':'Original')};
+$('add').onclick=()=>{adding=true;$('msg').textContent='Drag a rectangle on the page'};
+function place(d,b,p){d.style.cssText=`left:${b.box[0]/p.w*100}%;top:${b.box[1]/p.h*100}%;width:${(b.box[2]-b.box[0])/p.w*100}%;height:${(b.box[3]-b.box[1])/p.h*100}%`}
+const HND=['nw','n','ne','e','se','s','sw','w'];
+function layer(){const p=P[pg],L=$('layer');if(!p)return;L.innerHTML='';if(showOut&&p.inp)return;const lock=!!p.run;
+ p.blocks.forEach((b,k)=>{const d=document.createElement('div');d.className='box'+(k===sel?' sel':'')+(lock?' pend':'')+(!lock&&!(b.text||'').trim()?' empty':'');place(d,b,p);
+  const sp=document.createElement('span');sp.textContent=b.text||b.src;d.appendChild(sp);
+  if(k===sel&&editing&&!lock)HND.forEach(m=>{const e=document.createElement('i');e.className='hd '+m;e.onpointerdown=ev=>drag(ev,k,m);d.appendChild(e)});
+  d.onpointerdown=e=>{if(lock||!editing||adding)return;e.stopPropagation();if(sel!==k){sel=k;layer();panel()}drag(e,k,'move')};L.appendChild(d)})}
+$('layer').addEventListener('pointerdown',e=>{if(e.target===$('layer')&&!adding&&sel!==null){sel=null;layer();panel()}});
+function boxFields(){const b=P[pg]&&P[pg].blocks[sel];if(!b||!$('bx'))return;const f=[b.box[0],b.box[1],b.box[2]-b.box[0],b.box[3]-b.box[1]];['bx','by','bw','bh'].forEach((i,n)=>{if(document.activeElement!==$(i))$(i).value=f[n]})}
+function drag(e,k,mode){const p=P[pg],b=p.blocks[k];if(!b||e.button>0)return;e.preventDefault();e.stopPropagation();const o=b.box.slice(),s=pt(e),M=12;
+ const mv=ev=>{const a=pt(ev),dx=a[0]-s[0],dy=a[1]-s[1];let[x0,y0,x1,y1]=o;
+  if(mode==='move'){const w=x1-x0,h=y1-y0;x0=Math.min(Math.max(x0+dx,0),p.w-w);y0=Math.min(Math.max(y0+dy,0),p.h-h);x1=x0+w;y1=y0+h}
+  else{if(mode.includes('w'))x0=Math.min(Math.max(x0+dx,0),x1-M);if(mode.includes('e'))x1=Math.max(Math.min(x1+dx,p.w),x0+M);if(mode.includes('n'))y0=Math.min(Math.max(y0+dy,0),y1-M);if(mode.includes('s'))y1=Math.max(Math.min(y1+dy,p.h),y0+M)}
+  b.box=[x0,y0,x1,y1].map(Math.round);const d=$('layer').children[k];if(d)place(d,b,p);boxFields()};
+ const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up)};addEventListener('pointermove',mv);addEventListener('pointerup',up)}
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||sel===null||!editing)return;const p=P[pg],b=p&&p.blocks[sel];if(!b||p.run)return;
+ const s=e.shiftKey?10:1,d={ArrowLeft:[-s,0],ArrowRight:[s,0],ArrowUp:[0,-s],ArrowDown:[0,s]}[e.key];if(!d)return;e.preventDefault();
+ let[x0,y0,x1,y1]=b.box;const w=x1-x0,h=y1-y0;
+ if(e.altKey){x1=Math.min(Math.max(x1+d[0],x0+12),p.w);y1=Math.min(Math.max(y1+d[1],y0+12),p.h)}  // Alt + arrows = resize
+ else{x0=Math.min(Math.max(x0+d[0],0),p.w-w);y0=Math.min(Math.max(y0+d[1],0),p.h-h);x1=x0+w;y1=y0+h}
+ b.box=[x0,y0,x1,y1].map(Math.round);const el=$('layer').children[sel];if(el)place(el,b,p);boxFields()});
+async function boxCall(act,b,fn){busy=true;setBtns();$('msg').textContent=(act==='ocr'?'Reading':'Translating')+' box…';
+ const body={page:pg,box:b.box,src:$('src').value,tgt:$('tgt').value,engine:$('eng').value,text:b.src};
+ const r=await(await fetch(`/api/box/${jid}/${act}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
+ busy=false;setBtns();if(r.error){$('msg').textContent=r.error;return}$('msg').textContent='';fn(r.text);layer();panel()}
+function panel(){const Pn=$('sel'),p=P[pg];if(!p)return;
+ if(!editing){Pn.innerHTML='<small>Edit mode is off. Click <b>5 Edit</b> to edit boxes.</small>';return}
+ if(p.run){Pn.innerHTML='<small>This page is being processed. Editing unlocks when the step finishes with it.</small>';return}
+ const b=p.blocks[sel];if(!b){Pn.innerHTML='<small>Click a box to edit it, or use + Add box. Added boxes get their text from 3 OCR.</small>';return}
+ Pn.innerHTML=`<small>Source text (editable)</small><textarea id="s0" rows="3">${esc(b.src)}</textarea><button id="o1">OCR this box</button>
+ <small>Translation</small><textarea id="t" rows="5">${esc(b.text)}</textarea><button id="t1">Translate this box</button>
+ <p><select id="f" style="max-width:260px">${fontOpts(b.font,'Global font')}</select></p>
+ <p>Size <input id="s" type="number" min="0" value="${b.size}" style="width:60px"> <small>0 = auto-fit</small>
+ Colour <input id="c" type="color" value="${b.color||b.ink||'#000000'}"> <button id="c0">global</button></p><p><small>Box position / size (px)</small> X <input id="bx" type="number" style="width:62px"> Y <input id="by" type="number" style="width:62px"> W <input id="bw" type="number" style="width:62px"> H <input id="bh" type="number" style="width:62px"></p><small>Drag the box to move it, drag a white handle to resize, or use the arrow keys (Shift = 10 px, Alt = resize).</small><button id="del">Delete box</button>`;
+ $('s0').oninput=e=>b.src=e.target.value;$('t').oninput=e=>{b.text=e.target.value;layer()};$('f').onchange=e=>b.font=e.target.value;$('s').oninput=e=>b.size=+e.target.value||0;$('c').oninput=e=>b.color=e.target.value;$('c0').onclick=()=>{b.color='';$('c').value=b.ink||'#000000'};
+ boxFields();['bx','by','bw','bh'].forEach(i=>$(i).oninput=()=>{const x=+$('bx').value,y=+$('by').value,w=Math.max(12,+$('bw').value),h=Math.max(12,+$('bh').value);b.box=[x,y,x+w,y+h].map(Math.round);layer()});
+ $('o1').onclick=()=>boxCall('ocr',b,t=>b.src=t);$('t1').onclick=()=>boxCall('translate',b,t=>b.text=t);
+ $('del').onclick=()=>{p.blocks.splice(sel,1);sel=null;layer();panel()}}
+const pt=e=>{const r=$('img').getBoundingClientRect(),p=P[pg];return[(e.clientX-r.left)/r.width*p.w,(e.clientY-r.top)/r.height*p.h]};
+$('wrap').onmousedown=e=>{if(adding)st=pt(e)};
+$('wrap').onmouseup=e=>{if(!adding||!st)return;const a=pt(e),p=P[pg],x0=Math.min(st[0],a[0]),x1=Math.max(st[0],a[0]),y0=Math.min(st[1],a[1]),y1=Math.max(st[1],a[1]);
+ if(x1-x0>10&&y1-y0>10){p.blocks.push({box:[x0,y0,x1,y1].map(Math.round),src:'',text:'',font:'',size:0});sel=p.blocks.length-1}adding=false;st=null;$('msg').textContent='';layer();panel()};
+
+const PN={import:'pImport',config:'pConfig',style:'pStyle',api:'pApi',export:'pExport'};
+function openP(k){const d=$('drawer'),close=d.dataset.k===k;document.querySelectorAll('.pn').forEach(x=>x.hidden=close||x.id!==PN[k]);
+ d.dataset.k=close?'':k;d.classList.toggle('open',!close);document.querySelectorAll('.rail button').forEach(b=>b.classList.toggle('on',!close&&b.dataset.p===k))}
+function closeP(){const k=$('drawer').dataset.k;if(k)openP(k)}
+document.querySelectorAll('.rail button[data-p]').forEach(b=>b.onclick=()=>openP(b.dataset.p));
+openP('import');
+
+let PROVS=[],lastRes=null;
+async function loadProvs(){try{PROVS=await(await fetch('/api/providers')).json()}catch(e){return}renderProvs();refreshEng()}
+function refreshEng(){const g=$('apiEng'),cur=$('eng').value,ok=PROVS.filter(p=>p.ok);
+ g.innerHTML=ok.length?ok.map(p=>`<option value="api:${p.id}">${esc(p.name)} · ${esc((p.model||'').split(',')[0])}</option>`).join(''):'<option disabled>none yet: add a key in the API panel</option>';
+ if([...$('eng').options].some(o=>o.value===cur))$('eng').value=cur}
+function renderProvs(){const open=new Set([...document.querySelectorAll('#provs details[open]')].map(x=>x.dataset.id));
+ $('provs').innerHTML=PROVS.map(p=>`<details class="prov" data-id="${p.id}"${open.has(p.id)?' open':''}><summary><i class="dot${p.ok?' ok':''}"></i>${esc(p.name)}</summary>
+  <small>${esc(p.free)} ${p.url?`<a href="${p.url}" target="_blank" rel="noopener">Get a key ↗</a>`:''}</small>
+  ${p.needs_key||p.kind==='libre'||p.id==='custom'?`<div class="row"><label>Key</label><input type="password" name="key" autocomplete="off" placeholder="${p.has_key?'saved '+esc(p.hint)+' (type to replace)':p.needs_key?'paste API key':'optional'}"></div>`:''}
+  ${p.kind==='deepl'||p.kind==='libre'?'':`<div class="row"><label>Model</label><input name="model" list="dl-${p.id}" value="${esc(p.model)}"><datalist id="dl-${p.id}"></datalist></div>`}
+  ${['deepl','gemini','anthropic'].includes(p.kind)?'':`<div class="row"><label>Base URL</label><input name="base" value="${esc(p.base)}"></div>`}
+  <div class="row"><label>Req / min</label><input name="rpm" type="number" min="1" max="1000" value="${p.rpm}" style="max-width:80px"></div>
+  <div class="row"><button data-a="save">Save</button><button data-a="test">Test</button>${p.kind==='deepl'||p.kind==='libre'?'':'<button data-a="models">Models</button>'}${p.has_key?'<button data-a="clear">Remove key</button>':''}</div><div class="res"></div></details>`).join('');
+ if(lastRes){const d=document.querySelector(`#provs details[data-id="${lastRes.id}"] .res`);if(d){d.textContent=lastRes.t;d.className='res '+lastRes.c}}}
+$('provs').addEventListener('click',async e=>{const b=e.target.closest('button[data-a]');if(!b)return;const box=b.closest('details'),id=box.dataset.id,a=b.dataset.a,q=n=>box.querySelector(`[name=${n}]`);
+ const say=(t,c='')=>{lastRes={id,t,c};const r=document.querySelector(`#provs details[data-id="${id}"] .res`);if(r){r.textContent=t;r.className='res '+c}};
+ const d={};['model','base','rpm'].forEach(n=>{if(q(n))d[n]=q(n).value});if(q('key')&&q('key').value.trim())d.key=q('key').value.trim();if(a==='clear')d.clear=true;
+ b.disabled=true;
+ try{const r=await(await fetch('/api/providers/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)})).json();
+  if(r.error){say(r.error,'bad');return}PROVS=r;renderProvs();refreshEng();
+  if(a==='save'||a==='clear'){say(a==='clear'?'Key removed':'Saved','ok');return}
+  if(a==='test'){say('Testing…');const t=await(await fetch(`/api/providers/${id}/test`,{method:'POST'})).json();say(t.ok?`✓ ${t.text}  (${t.ms} ms)`:'✗ '+t.error,t.ok?'ok':'bad')}
+  if(a==='models'){say('Loading models…');const m=await(await fetch(`/api/providers/${id}/models`)).json();
+   if(m.error){say('✗ '+m.error,'bad');return}const dl=document.getElementById('dl-'+id);if(dl)dl.innerHTML=m.models.map(x=>`<option value="${esc(x)}">`).join('');
+   say(`${m.models.length} models loaded: click the Model box to pick one`+(id==='openrouter'?' (free ones are listed first; you can enter several separated by commas)':''),'ok')}
+ }catch(err){say('✗ '+err,'bad')}finally{const nb=document.querySelector(`#provs details[data-id="${id}"] [data-a="${a}"]`);if(nb)nb.disabled=false}});
+loadProvs();
+setInterval(()=>fetch('/api/ping').catch(()=>{}),4000);fetch('/api/ping').catch(()=>{});
+$('bQuit').onclick=async()=>{if(!confirm('Quit Doujin? Running steps will stop.'))return;try{await fetch('/api/quit',{method:'POST'})}catch(e){}document.body.innerHTML='<div style="padding:40px;font:16px system-ui;color:#e8ecf6">Doujin has been closed. You can close this window.</div>';try{window.close()}catch(e){}};
+</script></body></html>

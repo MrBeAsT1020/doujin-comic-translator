@@ -1,0 +1,26 @@
+# --- local data: NEVER commit these (config.json holds your API keys) ---
+config.json
+settings.json
+.env
+work/
+models/
+logs/
+browser-profile/
+fonts/*
+!fonts/.gitkeep
+
+# --- build output ---
+build/
+dist/
+
+# --- python ---
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# --- os / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

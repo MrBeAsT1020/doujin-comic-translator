@@ -1,0 +1,22 @@
+# Optional: build the .exe in the cloud (GitHub Actions, free for public repos). CPU-only PyTorch keeps it smaller;
+# for an NVIDIA-GPU build use build_exe.bat on your own PC instead.
+name: Build Windows exe
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: python -m pip install --upgrade pip
+      - run: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install -r requirements.txt pyinstaller
+      - run: python -m PyInstaller doujin.spec --noconfirm
+      - run: Compress-Archive -Path dist/DoujinTranslator -DestinationPath DoujinTranslator-win64.zip
+        shell: pwsh
+      - uses: actions/upload-artifact@v4
+        with: { name: DoujinTranslator-win64, path: DoujinTranslator-win64.zip }
